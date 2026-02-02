@@ -983,98 +983,177 @@
 
         createFloatingHearts();
 
+        // detect touch device (used to change NO-button behavior on touch)
+        const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+
         // NO button runs away and YES button grows
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         let noBtnAttempts = 0;
 
-        noBtn.addEventListener('mouseenter', () => {
-            noBtnAttempts++;
-            
-            // First time: make it absolute positioned
-            if (noBtnAttempts === 1) {
-                const rect = noBtn.getBoundingClientRect();
-                const containerRect = noBtn.parentElement.getBoundingClientRect();
-                noBtn.classList.add('running');
-                noBtn.style.left = (rect.left - containerRect.left) + 'px';
-                noBtn.style.top = (rect.top - containerRect.top) + 'px';
+        if (noBtn && yesBtn) {
+            // Keep the existing mouseenter/runaway behavior for non-touch devices
+            if (!isTouchDevice) {
+                noBtn.addEventListener('mouseenter', () => {
+                    noBtnAttempts++;
+                    
+                    // First time: make it absolute positioned
+                    if (noBtnAttempts === 1) {
+                        const rect = noBtn.getBoundingClientRect();
+                        const containerRect = noBtn.parentElement.getBoundingClientRect();
+                        noBtn.classList.add('running');
+                        noBtn.style.left = (rect.left - containerRect.left) + 'px';
+                        noBtn.style.top = (rect.top - containerRect.top) + 'px';
+                    }
+                    
+                    const container = document.getElementById('buttonContainer');
+                    const containerRect = container.getBoundingClientRect();
+                    
+                    // Make NO button progressively smaller and faster
+                    const newSize = Math.max(0.3, 1 - (noBtnAttempts * 0.15));
+                    noBtn.style.transform = `scale(${newSize})`;
+                    noBtn.style.transition = `all ${Math.max(0.1, 0.3 - noBtnAttempts * 0.02)}s ease`;
+                    
+                    // Get YES button position to avoid overlapping
+                    const yesBtnRect = yesBtn.getBoundingClientRect();
+                    const yesBtnWidth = yesBtnRect.width;
+                    const yesBtnHeight = yesBtnRect.height;
+                    const yesBtnLeft = yesBtnRect.left - containerRect.left;
+                    const yesBtnTop = yesBtnRect.top - containerRect.top;
+                    
+                    // Random position with constraints
+                    let randomX, randomY;
+                    const padding = 20;
+                    let attempts = 0;
+                    
+                    // Keep trying to find a position that doesn't overlap with YES button
+                    do {
+                        randomX = Math.random() * (containerRect.width - noBtn.offsetWidth - padding);
+                        randomY = Math.random() * (containerRect.height - noBtn.offsetHeight - padding);
+                        attempts++;
+                    } while (
+                        attempts < 5 &&
+                        !(randomX + noBtn.offsetWidth < yesBtnLeft || 
+                          randomX > yesBtnLeft + yesBtnWidth ||
+                          randomY + noBtn.offsetHeight < yesBtnTop ||
+                          randomY > yesBtnTop + yesBtnHeight)
+                    );
+                    
+                    // Ensure it stays in bounds
+                    randomX = Math.max(0, Math.min(randomX, containerRect.width - noBtn.offsetWidth - padding));
+                    randomY = Math.max(0, Math.min(randomY, containerRect.height - noBtn.offsetHeight - padding));
+                    
+                    noBtn.style.left = randomX + 'px';
+                    noBtn.style.top = randomY + 'px';
+                    
+                    // Make YES button GROW BIGGER with each attempt
+                    const yesSize = 1 + (noBtnAttempts * 0.2);
+                    const yesPadding = 20 + (noBtnAttempts * 5);
+                    yesBtn.classList.add('growing');
+                    yesBtn.style.transform = `scale(${yesSize})`;
+                    yesBtn.style.padding = `${yesPadding}px ${yesPadding * 2.5}px`;
+                    
+                    // If YES button gets really big, cover most of screen
+                    if (noBtnAttempts >= 8) {
+                        yesBtn.style.transform = `scale(${Math.min(yesSize, 3)})`;
+                        yesBtn.style.fontSize = '2rem';
+                        noBtn.style.opacity = '0';
+                        noBtn.style.pointerEvents = 'none';
+                    }
+                });
             }
-            
-            const container = document.getElementById('buttonContainer');
-            const containerRect = container.getBoundingClientRect();
-            
-            // Make NO button progressively smaller and faster
-            const newSize = Math.max(0.3, 1 - (noBtnAttempts * 0.15));
-            noBtn.style.transform = `scale(${newSize})`;
-            noBtn.style.transition = `all ${Math.max(0.1, 0.3 - noBtnAttempts * 0.02)}s ease`;
-            
-            // Get YES button position to avoid overlapping
-            const yesBtnRect = yesBtn.getBoundingClientRect();
-            const yesBtnWidth = yesBtnRect.width;
-            const yesBtnHeight = yesBtnRect.height;
-            const yesBtnLeft = yesBtnRect.left - containerRect.left;
-            const yesBtnTop = yesBtnRect.top - containerRect.top;
-            
-            // Random position with constraints
-            let randomX, randomY;
-            const padding = 20;
-            let attempts = 0;
-            
-            // Keep trying to find a position that doesn't overlap with YES button
-            do {
-                randomX = Math.random() * (containerRect.width - noBtn.offsetWidth - padding);
-                randomY = Math.random() * (containerRect.height - noBtn.offsetHeight - padding);
-                attempts++;
-            } while (
-                attempts < 5 &&
-                !(randomX + noBtn.offsetWidth < yesBtnLeft || 
-                  randomX > yesBtnLeft + yesBtnWidth ||
-                  randomY + noBtn.offsetHeight < yesBtnTop ||
-                  randomY > yesBtnTop + yesBtnHeight)
-            );
-            
-            // Ensure it stays in bounds
-            randomX = Math.max(0, Math.min(randomX, containerRect.width - noBtn.offsetWidth - padding));
-            randomY = Math.max(0, Math.min(randomY, containerRect.height - noBtn.offsetHeight - padding));
-            
-            noBtn.style.left = randomX + 'px';
-            noBtn.style.top = randomY + 'px';
-            
-            // Make YES button GROW BIGGER with each attempt
-            const yesSize = 1 + (noBtnAttempts * 0.2);
-            const yesPadding = 20 + (noBtnAttempts * 5);
-            yesBtn.classList.add('growing');
-            yesBtn.style.transform = `scale(${yesSize})`;
-            yesBtn.style.padding = `${yesPadding}px ${yesPadding * 2.5}px`;
-            
-            // If YES button gets really big, cover most of screen
-            if (noBtnAttempts >= 8) {
-                yesBtn.style.transform = `scale(${Math.min(yesSize, 3)})`;
-                yesBtn.style.fontSize = '2rem';
-                noBtn.style.opacity = '0';
-                noBtn.style.pointerEvents = 'none';
-            }
-        });
+
+            // For touch devices: tapping NO should do something sensible instead of "running away"
+            noBtn.addEventListener('click', (e) => {
+                if (!isTouchDevice) return; // desktop behavior unchanged (mouseenter handles it)
+
+                e.stopPropagation();
+
+                // Reset any runaway styles (defensive)
+                noBtn.classList.remove('running');
+                noBtn.style.left = '';
+                noBtn.style.top = '';
+                noBtn.style.transform = '';
+                noBtn.style.transition = '';
+
+                // Show a playful modal giving user a choice instead of doing nothing
+                showNoModal({
+                    title: "Oh... you tapped No 😅",
+                    message: "No worries — if you'd like, I can still show you a little surprise. Want to see it?",
+                    actionLabel: "Show the surprise 💝",
+                    action: () => {
+                        // Trigger YES flow to keep the experience consistent on touch
+                        yesBtn.click();
+                    }
+                });
+            });
+        }
+
+        // Reusable lightweight modal for NO-tap on touch devices
+        function showNoModal({title = 'Hold on', message = '', actionLabel = 'OK', action = null}) {
+            if (document.getElementById('noModal')) return;
+            const overlay = document.createElement('div');
+            overlay.id = 'noModal';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;';
+            const box = document.createElement('div');
+            box.style.cssText = 'background:white;border-radius:14px;padding:20px;max-width:420px;width:90%;text-align:center;font-family:inherit;color:var(--text);box-shadow:0 12px 30px rgba(0,0,0,0.2);';
+            const h = document.createElement('h3');
+            h.textContent = title;
+            h.style.margin = '0 0 10px';
+            h.style.fontFamily = "Righteous, cursive";
+            const p = document.createElement('p');
+            p.textContent = message;
+            p.style.margin = '0 0 16px';
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'center';
+            row.style.gap = '10px';
+            const btnAction = document.createElement('button');
+            btnAction.textContent = actionLabel;
+            btnAction.className = 'btn btn-yes';
+            btnAction.style.padding = '10px 16px';
+            btnAction.addEventListener('click', () => {
+                action && action();
+                overlay.remove();
+            });
+            const btnClose = document.createElement('button');
+            btnClose.textContent = 'Close';
+            btnClose.className = 'btn btn-no';
+            btnClose.style.padding = '10px 16px';
+            btnClose.addEventListener('click', () => overlay.remove());
+            row.appendChild(btnAction);
+            row.appendChild(btnClose);
+            box.appendChild(h);
+            box.appendChild(p);
+            box.appendChild(row);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
 
         // YES button clicked
-        yesBtn.addEventListener('click', () => {
-            // Hide buttons
-            document.getElementById('buttonContainer').style.display = 'none';
-            
-            // Show success section
-            document.getElementById('successSection').classList.add('show');
-            
-            // Create confetti
-            createConfetti();
-            
-            // Scroll to success section
-            setTimeout(() => {
-                document.getElementById('successSection').scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-            }, 100);
-        });
+        if (yesBtn) {
+            yesBtn.addEventListener('click', () => {
+                // Hide buttons
+                const bc = document.getElementById('buttonContainer');
+                if (bc) bc.style.display = 'none';
+                
+                // Show success section
+                const ss = document.getElementById('successSection');
+                if (ss) ss.classList.add('show');
+                
+                // Create confetti
+                createConfetti();
+                
+                // Scroll to success section
+                setTimeout(() => {
+                    const ss2 = document.getElementById('successSection');
+                    if (ss2) ss2.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 100);
+            });
+        }
 
         // Confetti animation
         function createConfetti() {
@@ -1100,7 +1179,7 @@
 
         // Love letter envelope
         const envelope = document.getElementById('envelope');
-        envelope.addEventListener('click', () => {
+        if (envelope) envelope.addEventListener('click', () => {
             envelope.classList.toggle('open');
         });
 
@@ -1134,40 +1213,66 @@
         // Easter egg surprises
         function toggleSurprise(num) {
             const message = document.getElementById('surprise' + num);
-            message.classList.toggle('show');
+            if (message) message.classList.toggle('show');
         }
 
         // Second NO button (after saying YES) - with consequences!
         const noBtn2 = document.getElementById('noBtn2');
         let noBtn2Attempts = 0;
 
-        noBtn2.addEventListener('mouseenter', () => {
-            noBtn2Attempts++;
-            
-            // Make button run away
-            const parent = noBtn2.parentElement;
-            const parentRect = parent.getBoundingClientRect();
-            
-            const randomX = Math.random() * (parentRect.width - noBtn2.offsetWidth);
-            const randomY = Math.random() * 100 - 50; // Move vertically too
-            
-            noBtn2.style.left = randomX + 'px';
-            noBtn2.style.top = randomY + 'px';
-            noBtn2.style.transform = `scale(${Math.max(0.5, 1 - noBtn2Attempts * 0.1)}) rotate(${Math.random() * 360}deg)`;
-        });
+        if (noBtn2) {
+            if (!isTouchDevice) {
+                noBtn2.addEventListener('mouseenter', () => {
+                    noBtn2Attempts++;
+                    
+                    // Make button run away
+                    const parent = noBtn2.parentElement;
+                    const parentRect = parent.getBoundingClientRect();
+                    
+                    const randomX = Math.random() * (parentRect.width - noBtn2.offsetWidth);
+                    const randomY = Math.random() * 100 - 50; // Move vertically too
+                    
+                    noBtn2.style.left = randomX + 'px';
+                    noBtn2.style.top = randomY + 'px';
+                    noBtn2.style.transform = `scale(${Math.max(0.5, 1 - noBtn2Attempts * 0.1)}) rotate(${Math.random() * 360}deg)`;
+                });
 
-        noBtn2.addEventListener('click', () => {
-            // If they somehow manage to click it
-            document.getElementById('consequenceMsg').style.display = 'block';
-            document.getElementById('consequenceMsg').style.animation = 'bounceIn 0.6s ease-out';
-            createConfetti();
+                noBtn2.addEventListener('click', () => {
+                    // If they somehow manage to click it
+                    document.getElementById('consequenceMsg').style.display = 'block';
+                    document.getElementById('consequenceMsg').style.animation = 'bounceIn 0.6s ease-out';
+                    createConfetti();
+                });
+            } else {
+                // touch device: tap shows modal to confirm or celebrate
+                noBtn2.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showNoModal({
+                        title: "Maybe not? 🤔",
+                        message: "If you'd rather skip, that's okay — or I can still show you a little celebration!",
+                        actionLabel: "Celebrate 🎉",
+                        action: () => {
+                            showConsequence();
+                        }
+                    });
+                });
+            }
+        }
+
+        noBtn2 && noBtn2.addEventListener('click', () => {
+            // desktop click fallback already handled above; keep defensive check
+            if (!isTouchDevice) return;
         });
 
         // Show consequence directly when clicking yes
         function showConsequence() {
-            document.getElementById('noBtn2').style.display = 'none';
-            document.getElementById('consequenceMsg').style.display = 'block';
-            document.getElementById('consequenceMsg').style.animation = 'bounceIn 0.6s ease-out';
+            const btn = document.getElementById('noBtn2');
+            if (btn) btn.style.display = 'none';
+            const cm = document.getElementById('consequenceMsg');
+            if (cm) {
+                cm.style.display = 'block';
+                cm.style.animation = 'bounceIn 0.6s ease-out';
+            }
             createConfetti();
         }
 
