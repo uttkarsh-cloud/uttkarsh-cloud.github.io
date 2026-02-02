@@ -121,6 +121,11 @@
             text-shadow: 3px 3px 0px rgba(255, 107, 157, 0.2);
             line-height: 1.1;
             animation: bounce 2s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--soft-red) 0%, var(--coral) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
         }
 
         @keyframes bounce {
@@ -135,9 +140,12 @@
         .hero p {
             font-size: clamp(1rem, 3vw, 1.4rem);
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 50px;
             animation: fadeIn 1s ease-out 0.3s both;
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+            text-transform: capitalize;
         }
 
         @keyframes fadeIn {
@@ -172,6 +180,28 @@
             transition: all 0.5s ease;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: left 0.5s ease;
+            z-index: 1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 2;
         }
 
         .btn-yes {
@@ -191,7 +221,12 @@
         }
 
         .btn-yes:hover {
-            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.4);
+            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.4), 0 0 20px rgba(255, 107, 157, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .btn-yes:active {
+            transform: translateY(-1px);
         }
 
         .btn-yes.growing {
@@ -203,6 +238,7 @@
             color: var(--text);
             transition: all 0.2s ease;
             position: relative;
+            z-index: 20;
         }
 
         .btn-no:hover {
@@ -211,6 +247,7 @@
 
         .btn-no.running {
             position: absolute !important;
+            z-index: 20;
         }
 
         /* Success Section */
@@ -282,11 +319,13 @@
             margin: 0 auto 30px;
             position: relative;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
         }
 
         .envelope:hover {
-            transform: scale(1.05);
+            transform: scale(1.1) translateY(-5px);
+            filter: drop-shadow(0 8px 20px rgba(255, 107, 157, 0.3));
         }
 
         .envelope-body {
@@ -336,6 +375,28 @@
             margin-top: 20px;
         }
 
+        /* Enhanced animations */
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 107, 157, 0.5), 3px 3px 0px rgba(255, 107, 157, 0.2); }
+            50% { text-shadow: 0 0 20px rgba(255, 107, 157, 0.8), 3px 3px 0px rgba(255, 107, 157, 0.3); }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleInHeart {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
         /* Photo Gallery */
         .photo-section {
             margin: 60px 0;
@@ -344,9 +405,26 @@
         .section-title {
             font-family: 'Righteous', cursive;
             font-size: clamp(2rem, 5vw, 3rem);
-            color: var(--soft-red);
+            background: linear-gradient(135deg, var(--soft-red) 0%, var(--coral) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
             margin-bottom: 40px;
+            animation: slideUp 0.6s ease-out;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--soft-red), transparent);
+            margin: 15px auto 0;
+            border-radius: 2px;
         }
 
         .photo-grid {
@@ -361,15 +439,24 @@
             border-radius: 20px;
             padding: 20px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            border: 3px solid transparent;
+            animation: slideUp 0.6s ease-out both;
         }
 
+        .photo-card:nth-child(1) { animation-delay: 0.1s; }
+        .photo-card:nth-child(2) { animation-delay: 0.2s; }
+        .photo-card:nth-child(3) { animation-delay: 0.3s; }
+        .photo-card:nth-child(4) { animation-delay: 0.4s; }
+
         .photo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.3);
+            border-color: var(--soft-red);
+            background: linear-gradient(135deg, #fff 0%, #fff8f5 100%);
         }
 
         .photo-placeholder {
@@ -428,22 +515,46 @@
             border-left: 5px solid var(--soft-red);
             transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out both;
+        }
+
+        .date-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .date-item:hover::before {
+            left: 100%;
         }
 
         .date-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(15px) translateY(-5px);
+            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.25);
+            border-left-width: 8px;
+            background: linear-gradient(135deg, #FFE5F1 0%, #FFF0E8 100%);
         }
 
         .date-item h3 {
             color: var(--soft-red);
             margin-bottom: 10px;
             font-size: 1.4rem;
+            position: relative;
+            z-index: 1;
         }
 
         .date-item p {
             color: var(--text);
             line-height: 1.6;
+            position: relative;
+            z-index: 1;
         }
 
         /* Surprises Section */
@@ -468,11 +579,36 @@
             transition: all 0.3s ease;
             width: 100%;
             font-family: 'Fredoka', sans-serif;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.2);
+        }
+
+        .surprise-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .surprise-btn:active::after {
+            width: 300px;
+            height: 300px;
         }
 
         .surprise-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.4);
+        }
+
+        .surprise-btn:active {
+            transform: scale(0.98);
         }
 
         .surprise-message {
@@ -496,19 +632,25 @@
 
         /* Final Question Section */
         .final-question {
-            background: white;
+            background: linear-gradient(135deg, #fff5f8 0%, #fffaf7 100%);
             border-radius: 20px;
             padding: 50px 40px;
             margin: 40px 0;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
+            border: 3px solid var(--soft-pink);
+            animation: slideUp 0.8s ease-out;
         }
 
         .final-question h2 {
             font-family: 'Righteous', cursive;
             font-size: clamp(1.8rem, 5vw, 2.5rem);
-            color: var(--soft-red);
+            background: linear-gradient(135deg, var(--soft-red) 0%, var(--coral) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 30px;
+            animation: glow 2s ease-in-out infinite;
         }
 
         .final-btns {
@@ -534,11 +676,36 @@
             display: none;
             background: linear-gradient(135deg, var(--soft-red) 0%, var(--coral) 100%);
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            font-size: 1.3rem;
+            padding: 40px;
+            border-radius: 20px;
+            font-size: 1.4rem;
             font-weight: 600;
-            margin-top: 20px;
+            margin-top: 30px;
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .consequence-msg::before {
+            content: '✨';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            font-size: 4rem;
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .consequence-msg::after {
+            content: '💕';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            font-size: 4rem;
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite 1s;
         }
 
         @keyframes bounceIn {
@@ -556,9 +723,13 @@
         /* Footer */
         footer {
             text-align: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
             color: var(--text);
             font-size: 1.1rem;
+            background: linear-gradient(135deg, rgba(255, 181, 217, 0.2) 0%, rgba(255, 229, 241, 0.2) 100%);
+            border-top: 3px solid var(--soft-pink);
+            margin-top: 60px;
+            font-weight: 600;
         }
 
         footer span {
@@ -605,7 +776,7 @@
         <!-- Hero Section -->
         <section class="hero">
             <h1>Will You Be My Valentine? 💕</h1>
-            <p>Hey [Name]! I have something important to ask you...</p>
+            <p>Hey Surbhi! I have something important to ask you...</p>
 
             <!-- Button Container -->
             <div class="button-container" id="buttonContainer">
@@ -617,8 +788,9 @@
         <!-- Success Section (Hidden initially) -->
         <section class="success-section" id="successSection">
             <h2>🎉 Yaaay! You said YES! 🎉</h2>
-            <p>I'm so happy right now! 😊 You've made my day absolutely perfect!</p>
-            <p>Now let me share all the special things I have planned for us... 💕</p>
+            <p style="font-size: 1.3rem; color: var(--soft-red); font-weight: 600; margin: 20px 0;">I'm the happiest person right now! 😊</p>
+            <p>You've made my day absolutely perfect! This is the best day of my life! ✨</p>
+            <p style="font-size: 1.1rem; margin-top: 30px; font-style: italic;">Scroll down to see all the special things I've planned for us... 💕</p>
         </section>
 
         <!-- Love Letter Section -->
@@ -633,7 +805,7 @@
             </p>
             <div class="letter-content">
                 <div class="letter-text">
-                    Dear [Name],
+                    Dear Surbhi,
                     <br><br>
                     From the moment I met you, my life became more colorful. Every day with you is a gift, and I can't imagine my world without your smile, your laughter, and your presence.
                     <br><br>
@@ -642,7 +814,7 @@
                     This Valentine's Day, I wanted to do something special to show you just how much you mean to me. You deserve all the love and happiness in the world.
                     <br><br>
                     With all my heart,<br>
-                    [Your Name] ❤️
+                    Always yours ❤️
                 </div>
             </div>
         </section>
@@ -792,7 +964,6 @@
         <!-- Final Question -->
         <section class="final-question">
             <h2>So... are you ready for the best Valentine's Day ever? 💖</h2>
-            <p style="font-size: 1.2rem; margin: 20px 0;">One last question before we celebrate...</p>
             
             <div class="final-btns">
                 <button class="btn btn-yes" onclick="showConsequence()">Absolutely! 🎉</button>
@@ -807,7 +978,7 @@
         <!-- Footer -->
         <footer>
             Made with love by<br>
-            [Your Name] <span>❤️</span>
+            Your Secret Admirer <span>❤️</span>
             <br><br>
             <small>P.S. You're the best thing that's ever happened to me! 😊</small>
         </footer>
@@ -859,11 +1030,34 @@
             noBtn.style.transform = `scale(${newSize})`;
             noBtn.style.transition = `all ${Math.max(0.1, 0.3 - noBtnAttempts * 0.02)}s ease`;
             
-            // Random position
-            const maxX = containerRect.width - noBtn.offsetWidth;
-            const maxY = containerRect.height - noBtn.offsetHeight;
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
+            // Get YES button position to avoid overlapping
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+            const yesBtnWidth = yesBtnRect.width;
+            const yesBtnHeight = yesBtnRect.height;
+            const yesBtnLeft = yesBtnRect.left - containerRect.left;
+            const yesBtnTop = yesBtnRect.top - containerRect.top;
+            
+            // Random position with constraints
+            let randomX, randomY;
+            const padding = 20;
+            let attempts = 0;
+            
+            // Keep trying to find a position that doesn't overlap with YES button
+            do {
+                randomX = Math.random() * (containerRect.width - noBtn.offsetWidth - padding);
+                randomY = Math.random() * (containerRect.height - noBtn.offsetHeight - padding);
+                attempts++;
+            } while (
+                attempts < 5 &&
+                !(randomX + noBtn.offsetWidth < yesBtnLeft || 
+                  randomX > yesBtnLeft + yesBtnWidth ||
+                  randomY + noBtn.offsetHeight < yesBtnTop ||
+                  randomY > yesBtnTop + yesBtnHeight)
+            );
+            
+            // Ensure it stays in bounds
+            randomX = Math.max(0, Math.min(randomX, containerRect.width - noBtn.offsetWidth - padding));
+            randomY = Math.max(0, Math.min(randomY, containerRect.height - noBtn.offsetHeight - padding));
             
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
@@ -982,21 +1176,10 @@
             noBtn2.style.left = randomX + 'px';
             noBtn2.style.top = randomY + 'px';
             noBtn2.style.transform = `scale(${Math.max(0.5, 1 - noBtn2Attempts * 0.1)}) rotate(${Math.random() * 360}deg)`;
-            
-            // After 3 attempts, show the consequence message
-            if (noBtn2Attempts >= 3) {
-                noBtn2.style.display = 'none';
-                document.getElementById('consequenceMsg').style.display = 'block';
-                document.getElementById('consequenceMsg').style.animation = 'bounceIn 0.6s ease-out';
-                
-                // Create celebration confetti
-                createConfetti();
-            }
         });
 
         noBtn2.addEventListener('click', () => {
             // If they somehow manage to click it
-            noBtn2.style.display = 'none';
             document.getElementById('consequenceMsg').style.display = 'block';
             document.getElementById('consequenceMsg').style.animation = 'bounceIn 0.6s ease-out';
             createConfetti();
